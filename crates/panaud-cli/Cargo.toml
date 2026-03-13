@@ -1,0 +1,22 @@
+[package]
+name = "panaud-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The Swiss Army knife of audio processing"
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+
+[[bin]]
+name = "panaud"
+path = "src/main.rs"
+
+[dependencies]
+pan-common = { workspace = true, features = ["clap"] }
+panaud-core = { workspace = true }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+miette = { workspace = true }
