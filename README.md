@@ -10,7 +10,7 @@ The Swiss Army knife of audio processing — built for humans and AI agents alik
 
 ## Features
 
-- **Multi-format decoding** — WAV, MP3, FLAC, OGG, AAC via symphonia
+- **Multi-format support** — decode WAV, MP3, FLAC, OGG, AAC; encode WAV, MP3, FLAC (OGG opt-in)
 - **Flexible time parsing** — `1:30`, `90s`, `1.5m`, `44100S` (samples)
 - **AI-agent friendly** — structured JSON output, `--dry-run`, `--schema`, and `--capabilities` for programmatic use
 - **Fast & safe** — built in Rust with structured error handling and exit codes
@@ -51,6 +51,12 @@ panaud trim song.wav -o clip.wav --start 1:30 --end 2:00
 
 # Preview without executing
 panaud trim song.wav -o clip.wav --start 1:30 --dry-run
+
+# Adjust volume by +3 dB
+panaud volume song.wav -o louder.wav --gain 3
+
+# Peak-normalize audio
+panaud normalize song.wav -o normalized.wav
 ```
 
 ## Commands
@@ -60,18 +66,20 @@ panaud trim song.wav -o clip.wav --start 1:30 --dry-run
 | `info` | Show audio file metadata (format, codec, sample rate, channels, duration) |
 | `convert` | Convert audio between formats |
 | `trim` | Trim audio to a time range |
+| `volume` | Adjust audio volume |
+| `normalize` | Peak-normalize audio |
 
 ## Supported Formats
 
 | Format | Decode | Encode |
 |--------|--------|--------|
 | WAV | ✅ symphonia | ✅ hound |
-| MP3 | ✅ symphonia | — |
-| FLAC | ✅ symphonia | — |
-| OGG | ✅ symphonia | — |
+| MP3 | ✅ symphonia | ✅ mp3lame (default) |
+| FLAC | ✅ symphonia | ✅ flacenc (default) |
+| OGG | ✅ symphonia | ✅ vorbis_rs (opt-in) |
 | AAC | ✅ symphonia | — |
 
-> v0.1.0 can decode all formats above but only encode to WAV. More output formats coming in future releases.
+> MP3 and FLAC encoding are enabled by default. OGG encoding requires the `ogg-enc` feature flag (`cargo install panaud-cli --features ogg-enc`) and a system libvorbis.
 
 ## Time Formats
 
