@@ -1,6 +1,11 @@
+pub mod channels;
+pub mod concat;
 pub mod convert;
+pub mod fade;
 pub mod info;
 pub mod normalize;
 pub mod pipeline_runner;
+pub mod resample;
+pub mod split;
 pub mod trim;
 pub mod volume;

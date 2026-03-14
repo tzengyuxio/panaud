@@ -53,6 +53,26 @@ fn capabilities() -> Capabilities {
                 name: "normalize".into(),
                 description: "Peak-normalize audio".into(),
             },
+            CommandCap {
+                name: "fade".into(),
+                description: "Apply fade-in/fade-out to audio".into(),
+            },
+            CommandCap {
+                name: "channels".into(),
+                description: "Change audio channel layout".into(),
+            },
+            CommandCap {
+                name: "resample".into(),
+                description: "Resample audio to a different sample rate".into(),
+            },
+            CommandCap {
+                name: "concat".into(),
+                description: "Concatenate multiple audio files".into(),
+            },
+            CommandCap {
+                name: "split".into(),
+                description: "Split audio into multiple files".into(),
+            },
         ],
         formats: AudioFormat::all()
             .iter()
@@ -125,6 +145,21 @@ fn main() {
         }
         Some(Commands::Normalize(args)) => {
             commands::normalize::run(args, cli.format, cli.dry_run, cli.schema)
+        }
+        Some(Commands::Fade(args)) => {
+            commands::fade::run(args, cli.format, cli.dry_run, cli.schema)
+        }
+        Some(Commands::Channels(args)) => {
+            commands::channels::run(args, cli.format, cli.dry_run, cli.schema)
+        }
+        Some(Commands::Resample(args)) => {
+            commands::resample::run(args, cli.format, cli.dry_run, cli.schema)
+        }
+        Some(Commands::Concat(args)) => {
+            commands::concat::run(args, cli.format, cli.dry_run, cli.schema)
+        }
+        Some(Commands::Split(args)) => {
+            commands::split::run(args, cli.format, cli.dry_run, cli.schema)
         }
         None => {
             use clap::CommandFactory;

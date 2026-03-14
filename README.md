@@ -57,6 +57,24 @@ panaud volume song.wav -o louder.wav --gain 3
 
 # Peak-normalize audio
 panaud normalize song.wav -o normalized.wav
+
+# Fade in/out
+panaud fade song.wav -o faded.wav --in 2s --out 3s
+
+# Convert to mono / extract left channel
+panaud channels song.wav -o mono.wav --mono
+panaud channels song.wav -o left.wav --extract left
+
+# Resample to 48 kHz
+panaud resample song.wav -o resampled.wav --rate 48000
+
+# Concatenate files
+panaud concat intro.wav song.wav outro.wav -o full.wav
+
+# Split by equal parts, at time points, or by duration
+panaud split song.wav -o chunks/ --count 4
+panaud split song.wav -o chunks/ --at 1:30,3:00
+panaud split song.wav -o chunks/ --duration 30s
 ```
 
 ## Commands
@@ -68,6 +86,11 @@ panaud normalize song.wav -o normalized.wav
 | `trim` | Trim audio to a time range |
 | `volume` | Adjust audio volume |
 | `normalize` | Peak-normalize audio |
+| `fade` | Apply fade-in/fade-out to audio |
+| `channels` | Change audio channel layout (mono, stereo, extract) |
+| `resample` | Resample audio to a different sample rate |
+| `concat` | Concatenate multiple audio files into one |
+| `split` | Split audio into multiple files |
 
 ## Supported Formats
 
@@ -83,7 +106,7 @@ panaud normalize song.wav -o normalized.wav
 
 ## Time Formats
 
-The `--start` and `--end` flags accept flexible time formats:
+Time-related flags (`--start`, `--end`, `--in`, `--out`, `--at`, `--duration`) accept flexible formats:
 
 | Format | Example | Meaning |
 |--------|---------|---------|
@@ -116,16 +139,13 @@ panaud aims to fill this gap with:
 - **Modern tooling** — cross-platform binaries, batch processing, pipeline recipes
 
 ```bash
-# SoX
-sox input.wav output.flac remix - norm -3 highpass 22 gain -3 rate 48k
+# SoX: remix to mono, normalize, resample — all in one cryptic command
+sox input.wav output.wav remix - norm -3 rate 48k
 
-# panaud
-panaud convert input.wav output.flac \
-    --channels mono \
-    --normalize -3 \
-    --highpass 22 \
-    --gain -3 \
-    --sample-rate 48000
+# panaud: explicit, composable commands
+panaud channels input.wav -o mono.wav --mono
+panaud normalize mono.wav -o norm.wav --target -3
+panaud resample norm.wav -o output.wav --rate 48000
 ```
 
 ## Part of the pan- family
