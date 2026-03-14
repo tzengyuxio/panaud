@@ -199,7 +199,8 @@ mod tests {
     #[test]
     fn fade_in_and_out() {
         let audio = test_audio();
-        let op = FadeOp::from_specs(Some(TimeSpec::Seconds(0.2)), Some(TimeSpec::Seconds(0.2))).unwrap();
+        let op =
+            FadeOp::from_specs(Some(TimeSpec::Seconds(0.2)), Some(TimeSpec::Seconds(0.2))).unwrap();
         let result = op.apply(audio).unwrap();
         assert_eq!(result.samples[0], 0.0);
         assert!((result.samples[result.samples.len() - 2]).abs() < 0.1);
@@ -210,7 +211,8 @@ mod tests {
     #[test]
     fn fade_exceeds_length() {
         let audio = test_audio();
-        let op = FadeOp::from_specs(Some(TimeSpec::Seconds(0.6)), Some(TimeSpec::Seconds(0.6))).unwrap();
+        let op =
+            FadeOp::from_specs(Some(TimeSpec::Seconds(0.6)), Some(TimeSpec::Seconds(0.6))).unwrap();
         assert!(op.apply(audio).is_err());
     }
 

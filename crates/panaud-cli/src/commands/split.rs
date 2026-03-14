@@ -164,7 +164,10 @@ pub fn run(args: &SplitArgs, format: OutputFormat, dry_run: bool, show_schema: b
         };
         output::print_output(
             format,
-            &format!("Would split {} → {} ({})", input, plan.output_dir, plan.mode),
+            &format!(
+                "Would split {} → {} ({})",
+                input, plan.output_dir, plan.mode
+            ),
             &plan,
         );
         return 0;
@@ -241,7 +244,10 @@ pub fn run(args: &SplitArgs, format: OutputFormat, dry_run: bool, show_schema: b
 
     output::print_output(
         format,
-        &format!("Split {} into {} parts → {}", result.input, result.parts, result.output_dir),
+        &format!(
+            "Split {} into {} parts → {}",
+            result.input, result.parts, result.output_dir
+        ),
         &result,
     );
 

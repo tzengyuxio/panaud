@@ -100,7 +100,11 @@ pub fn run(args: &ConcatArgs, format: OutputFormat, dry_run: bool, show_schema: 
         };
         output::print_output(
             format,
-            &format!("Would concatenate {} files → {}", args.inputs.len(), plan.output),
+            &format!(
+                "Would concatenate {} files → {}",
+                args.inputs.len(),
+                plan.output
+            ),
             &plan,
         );
         return 0;
@@ -170,7 +174,8 @@ pub fn run(args: &ConcatArgs, format: OutputFormat, dry_run: bool, show_schema: 
         format,
         &format!(
             "Concatenated {} files → {}",
-            result.inputs.len(), result.output
+            result.inputs.len(),
+            result.output
         ),
         &result,
     );

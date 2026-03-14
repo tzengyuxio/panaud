@@ -33,8 +33,8 @@ fn parse_mode(args: &ChannelsArgs, format: OutputFormat) -> Option<ChannelMode> 
                 Err(_) => {
                     let err = panaud_core::error::PanaudError::InvalidArgument {
                         message: format!("invalid channel selector: '{sel}'"),
-                        suggestion:
-                            "use 'left', 'right', or a numeric channel index (e.g. '0')".into(),
+                        suggestion: "use 'left', 'right', or a numeric channel index (e.g. '0')"
+                            .into(),
                     };
                     output::print_error(format, &err);
                     return None;

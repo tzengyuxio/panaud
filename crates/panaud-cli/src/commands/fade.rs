@@ -42,7 +42,10 @@ pub fn run(args: &FadeArgs, format: OutputFormat, dry_run: bool, show_schema: bo
         let plan = pipeline.describe();
         output::print_output(
             format,
-            &format!("Would apply fade to {} → {}", ctx.input, ctx.output_path_str),
+            &format!(
+                "Would apply fade to {} → {}",
+                ctx.input, ctx.output_path_str
+            ),
             &plan,
         );
         return 0;

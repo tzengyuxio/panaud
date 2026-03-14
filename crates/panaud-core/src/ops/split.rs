@@ -26,7 +26,10 @@ pub fn split_audio(input: &AudioData, mode: &SplitMode) -> Result<Vec<AudioData>
 
     let split_points: Vec<u64> = match mode {
         SplitMode::At(times) => {
-            let mut points: Vec<u64> = times.iter().map(|t| t.to_frame(input.sample_rate)).collect();
+            let mut points: Vec<u64> = times
+                .iter()
+                .map(|t| t.to_frame(input.sample_rate))
+                .collect();
             points.sort();
             points.dedup();
             // Filter out points beyond audio length
@@ -157,9 +160,7 @@ mod tests {
     #[test]
     fn split_duration_too_long() {
         let audio = test_audio();
-        assert!(
-            split_audio(&audio, &SplitMode::Duration(TimeSpec::Seconds(20.0))).is_err()
-        );
+        assert!(split_audio(&audio, &SplitMode::Duration(TimeSpec::Seconds(20.0))).is_err());
     }
 
     #[test]

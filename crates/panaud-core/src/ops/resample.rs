@@ -45,12 +45,10 @@ impl Operation<AudioData, PanaudError> for ResampleOp {
         };
 
         let chunk_size = 1024;
-        let mut resampler =
-            SincFixedIn::<f32>::new(ratio, 2.0, params, chunk_size, channels).map_err(|e| {
-                PanaudError::ResampleError {
-                    message: format!("failed to create resampler: {e}"),
-                    suggestion: "check that sample rate ratio is reasonable".into(),
-                }
+        let mut resampler = SincFixedIn::<f32>::new(ratio, 2.0, params, chunk_size, channels)
+            .map_err(|e| PanaudError::ResampleError {
+                message: format!("failed to create resampler: {e}"),
+                suggestion: "check that sample rate ratio is reasonable".into(),
             })?;
 
         // Deinterleave
@@ -58,8 +56,9 @@ impl Operation<AudioData, PanaudError> for ResampleOp {
 
         let num_frames = input.num_frames() as usize;
         let estimated_output = (num_frames as f64 * ratio).ceil() as usize + chunk_size;
-        let mut output_channels: Vec<Vec<f32>> =
-            (0..channels).map(|_| Vec::with_capacity(estimated_output)).collect();
+        let mut output_channels: Vec<Vec<f32>> = (0..channels)
+            .map(|_| Vec::with_capacity(estimated_output))
+            .collect();
 
         let mut pos = 0;
         while pos < num_frames {
@@ -73,12 +72,12 @@ impl Operation<AudioData, PanaudError> for ResampleOp {
                 .collect();
 
             let resampled = if is_last && actual_len < chunk_size {
-                resampler
-                    .process_partial(Some(&chunk), None)
-                    .map_err(|e| PanaudError::ResampleError {
+                resampler.process_partial(Some(&chunk), None).map_err(|e| {
+                    PanaudError::ResampleError {
                         message: format!("resample error: {e}"),
                         suggestion: "this may indicate corrupted audio data".into(),
-                    })?
+                    }
+                })?
             } else {
                 resampler
                     .process(&chunk, None)
