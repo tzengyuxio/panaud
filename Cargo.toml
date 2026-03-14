@@ -28,5 +28,5 @@ thiserror = "2.0"
 miette = { version = "7.6", features = ["fancy"] }
 
 # Internal crates
-pan-common = { git = "https://github.com/tzengyuxio/panimg.git", branch = "feat/set-density" }
+pan-common = "0.1.0"
 panaud-core = { path = "crates/panaud-core", version = "0.1.0" }
