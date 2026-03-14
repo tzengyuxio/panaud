@@ -154,11 +154,61 @@ jobs:
       - name: Update Formula
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          TARBALL_URL="https://github.com/tzengyuxio/panaud/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
-          SHA256=$(curl -fsSL "${TARBALL_URL}" | sha256sum | awk '{print $1}')
+          TAG="${GITHUB_REF_NAME}"
+          BASE="https://github.com/tzengyuxio/panaud/releases/download/${TAG}"
 
-          sed -i "s|url \"https://github.com/tzengyuxio/panaud/archive/refs/tags/.*\.tar\.gz\"|url \"${TARBALL_URL}\"|" Formula/panaud.rb
-          sed -i "s/sha256 \"[0-9a-f]\{64\}\"/sha256 \"${SHA256}\"/" Formula/panaud.rb
+          sha_arm_mac=$(curl -fsSL "${BASE}/panaud-${TAG}-aarch64-apple-darwin.tar.gz" | sha256sum | awk '{print $1}')
+          sha_x86_mac=$(curl -fsSL "${BASE}/panaud-${TAG}-x86_64-apple-darwin.tar.gz" | sha256sum | awk '{print $1}')
+          sha_arm_linux=$(curl -fsSL "${BASE}/panaud-${TAG}-aarch64-unknown-linux-gnu.tar.gz" | sha256sum | awk '{print $1}')
+          sha_x86_linux=$(curl -fsSL "${BASE}/panaud-${TAG}-x86_64-unknown-linux-gnu.tar.gz" | sha256sum | awk '{print $1}')
+
+          cat > Formula/panaud.rb << 'RUBY'
+          class Panaud < Formula
+            desc "The Swiss Army knife of audio processing — built for humans and AI agents alike"
+            homepage "https://github.com/tzengyuxio/panaud"
+            version "__VERSION__"
+            license "MIT"
+
+            on_macos do
+              on_arm do
+                url "__BASE__/panaud-__TAG__-aarch64-apple-darwin.tar.gz"
+                sha256 "__SHA_ARM_MAC__"
+              end
+              on_intel do
+                url "__BASE__/panaud-__TAG__-x86_64-apple-darwin.tar.gz"
+                sha256 "__SHA_X86_MAC__"
+              end
+            end
+
+            on_linux do
+              on_arm do
+                url "__BASE__/panaud-__TAG__-aarch64-unknown-linux-gnu.tar.gz"
+                sha256 "__SHA_ARM_LINUX__"
+              end
+              on_intel do
+                url "__BASE__/panaud-__TAG__-x86_64-unknown-linux-gnu.tar.gz"
+                sha256 "__SHA_X86_LINUX__"
+              end
+            end
+
+            def install
+              bin.install "panaud"
+            end
+
+            test do
+              assert_match version.to_s, shell_output("#{bin}/panaud --version")
+            end
+          end
+          RUBY
+
+          sed -i 's/^          //' Formula/panaud.rb
+          sed -i "s|__VERSION__|${VERSION}|g" Formula/panaud.rb
+          sed -i "s|__TAG__|${TAG}|g" Formula/panaud.rb
+          sed -i "s|__BASE__|${BASE}|g" Formula/panaud.rb
+          sed -i "s|__SHA_ARM_MAC__|${sha_arm_mac}|g" Formula/panaud.rb
+          sed -i "s|__SHA_X86_MAC__|${sha_x86_mac}|g" Formula/panaud.rb
+          sed -i "s|__SHA_ARM_LINUX__|${sha_arm_linux}|g" Formula/panaud.rb
+          sed -i "s|__SHA_X86_LINUX__|${sha_x86_linux}|g" Formula/panaud.rb
 
       - name: Commit and push
         run: |
