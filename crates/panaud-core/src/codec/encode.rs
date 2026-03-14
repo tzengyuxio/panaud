@@ -11,8 +11,13 @@ pub fn encode_wav(audio: &AudioData, path: &Path) -> Result<()> {
         sample_format: hound::SampleFormat::Float,
     };
 
-    let mut writer = hound::WavWriter::create(path, spec)
-        .map_err(|e| PanaudError::encode(path, e.to_string(), "check that the output directory exists and is writable"))?;
+    let mut writer = hound::WavWriter::create(path, spec).map_err(|e| {
+        PanaudError::encode(
+            path,
+            e.to_string(),
+            "check that the output directory exists and is writable",
+        )
+    })?;
 
     for &sample in &audio.samples {
         writer

@@ -30,7 +30,11 @@ impl fmt::Display for TimeSpec {
                 let minutes = (total % 3600) / 60;
                 let seconds = total % 60;
                 if hours > 0 {
-                    write!(f, "{hours}:{minutes:02}:{seconds:02}.{:02}", (frac * 100.0) as u32)
+                    write!(
+                        f,
+                        "{hours}:{minutes:02}:{seconds:02}.{:02}",
+                        (frac * 100.0) as u32
+                    )
                 } else {
                     write!(f, "{minutes}:{seconds:02}.{:02}", (frac * 100.0) as u32)
                 }
@@ -81,13 +85,12 @@ pub fn parse_time(input: &str) -> Result<TimeSpec> {
 
     // Seconds with suffix: "90s"
     if let Some(num) = input.strip_suffix('s') {
-        return num
-            .parse::<f64>()
-            .map(TimeSpec::Seconds)
-            .map_err(|_| PanaudError::InvalidTimeFormat {
+        return num.parse::<f64>().map(TimeSpec::Seconds).map_err(|_| {
+            PanaudError::InvalidTimeFormat {
                 input: input.to_string(),
                 suggestion: "second format should be a number followed by 's', e.g. '90s'".into(),
-            });
+            }
+        });
     }
 
     // Colon format: "1:30" or "1:02:30"
@@ -95,42 +98,47 @@ pub fn parse_time(input: &str) -> Result<TimeSpec> {
         let parts: Vec<&str> = input.split(':').collect();
         match parts.len() {
             2 => {
-                let minutes = parts[0].parse::<f64>().map_err(|_| {
-                    PanaudError::InvalidTimeFormat {
-                        input: input.to_string(),
-                        suggestion: "format should be 'minutes:seconds', e.g. '1:30'".into(),
-                    }
-                })?;
-                let seconds = parts[1].parse::<f64>().map_err(|_| {
-                    PanaudError::InvalidTimeFormat {
-                        input: input.to_string(),
-                        suggestion: "format should be 'minutes:seconds', e.g. '1:30'".into(),
-                    }
-                })?;
+                let minutes =
+                    parts[0]
+                        .parse::<f64>()
+                        .map_err(|_| PanaudError::InvalidTimeFormat {
+                            input: input.to_string(),
+                            suggestion: "format should be 'minutes:seconds', e.g. '1:30'".into(),
+                        })?;
+                let seconds =
+                    parts[1]
+                        .parse::<f64>()
+                        .map_err(|_| PanaudError::InvalidTimeFormat {
+                            input: input.to_string(),
+                            suggestion: "format should be 'minutes:seconds', e.g. '1:30'".into(),
+                        })?;
                 return Ok(TimeSpec::Seconds(minutes * 60.0 + seconds));
             }
             3 => {
-                let hours = parts[0].parse::<f64>().map_err(|_| {
-                    PanaudError::InvalidTimeFormat {
-                        input: input.to_string(),
-                        suggestion:
-                            "format should be 'hours:minutes:seconds', e.g. '1:02:30'".into(),
-                    }
-                })?;
-                let minutes = parts[1].parse::<f64>().map_err(|_| {
-                    PanaudError::InvalidTimeFormat {
-                        input: input.to_string(),
-                        suggestion:
-                            "format should be 'hours:minutes:seconds', e.g. '1:02:30'".into(),
-                    }
-                })?;
-                let seconds = parts[2].parse::<f64>().map_err(|_| {
-                    PanaudError::InvalidTimeFormat {
-                        input: input.to_string(),
-                        suggestion:
-                            "format should be 'hours:minutes:seconds', e.g. '1:02:30'".into(),
-                    }
-                })?;
+                let hours =
+                    parts[0]
+                        .parse::<f64>()
+                        .map_err(|_| PanaudError::InvalidTimeFormat {
+                            input: input.to_string(),
+                            suggestion: "format should be 'hours:minutes:seconds', e.g. '1:02:30'"
+                                .into(),
+                        })?;
+                let minutes =
+                    parts[1]
+                        .parse::<f64>()
+                        .map_err(|_| PanaudError::InvalidTimeFormat {
+                            input: input.to_string(),
+                            suggestion: "format should be 'hours:minutes:seconds', e.g. '1:02:30'"
+                                .into(),
+                        })?;
+                let seconds =
+                    parts[2]
+                        .parse::<f64>()
+                        .map_err(|_| PanaudError::InvalidTimeFormat {
+                            input: input.to_string(),
+                            suggestion: "format should be 'hours:minutes:seconds', e.g. '1:02:30'"
+                                .into(),
+                        })?;
                 return Ok(TimeSpec::Seconds(hours * 3600.0 + minutes * 60.0 + seconds));
             }
             _ => {
@@ -178,10 +186,7 @@ mod tests {
 
     #[test]
     fn parse_colon_hh_mm_ss() {
-        assert_eq!(
-            parse_time("1:02:30").unwrap(),
-            TimeSpec::Seconds(3750.0)
-        );
+        assert_eq!(parse_time("1:02:30").unwrap(), TimeSpec::Seconds(3750.0));
     }
 
     #[test]

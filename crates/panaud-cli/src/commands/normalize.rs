@@ -21,7 +21,11 @@ pub fn run(args: &NormalizeArgs, format: OutputFormat, dry_run: bool, show_schem
         return 0;
     }
 
-    let ctx = match PipelineContext::from_io_args(&args.io, format, "panaud normalize <input> -o <output>") {
+    let ctx = match PipelineContext::from_io_args(
+        &args.io,
+        format,
+        "panaud normalize <input> -o <output>",
+    ) {
         Some(c) => c,
         None => return 5,
     };

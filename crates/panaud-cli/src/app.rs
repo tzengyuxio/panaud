@@ -70,9 +70,7 @@ pub struct IoArgs {
 impl IoArgs {
     /// Resolve the effective output path from positional or -o flag.
     pub fn output_path(&self) -> Option<&str> {
-        self.output
-            .as_deref()
-            .or(self.output_pos.as_deref())
+        self.output.as_deref().or(self.output_pos.as_deref())
     }
 }
 

@@ -90,9 +90,7 @@ pub fn decode_file(path: &Path) -> Result<AudioData> {
         let capacity = decoded.capacity();
 
         // Reuse the sample buffer if it has sufficient capacity, otherwise allocate.
-        let buf = sample_buf.get_or_insert_with(|| {
-            SampleBuffer::<f32>::new(capacity as u64, spec)
-        });
+        let buf = sample_buf.get_or_insert_with(|| SampleBuffer::<f32>::new(capacity as u64, spec));
         buf.copy_interleaved_ref(decoded);
         all_samples.extend_from_slice(buf.samples());
     }
