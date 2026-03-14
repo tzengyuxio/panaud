@@ -88,7 +88,11 @@ impl StructuredError for PanaudError {
 
 impl PanaudError {
     /// Convenience constructor for encode errors.
-    pub fn encode(path: &std::path::Path, message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+    pub fn encode(
+        path: &std::path::Path,
+        message: impl Into<String>,
+        suggestion: impl Into<String>,
+    ) -> Self {
         Self::EncodeError {
             message: message.into(),
             path: Some(path.to_path_buf()),

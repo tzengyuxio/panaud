@@ -22,7 +22,11 @@ pub fn run(args: &TrimArgs, format: OutputFormat, dry_run: bool, show_schema: bo
         return 0;
     }
 
-    let ctx = match PipelineContext::from_io_args(&args.io, format, "panaud trim <input> -o <output> --start <time>") {
+    let ctx = match PipelineContext::from_io_args(
+        &args.io,
+        format,
+        "panaud trim <input> -o <output> --start <time>",
+    ) {
         Some(c) => c,
         None => return 5,
     };

@@ -19,22 +19,20 @@ pub struct AudioInfo {
 impl AudioInfo {
     /// Extract metadata from an audio file using symphonia probe.
     pub fn from_path(path: &Path) -> Result<Self> {
-        let file_size = std::fs::metadata(path)
-            .map(|m| m.len())
-            .map_err(|e| {
-                if e.kind() == std::io::ErrorKind::NotFound {
-                    PanaudError::FileNotFound {
-                        path: path.to_path_buf(),
-                        suggestion: "check that the file path is correct".into(),
-                    }
-                } else {
-                    PanaudError::IoError {
-                        message: e.to_string(),
-                        path: Some(path.to_path_buf()),
-                        suggestion: "check file permissions".into(),
-                    }
+        let file_size = std::fs::metadata(path).map(|m| m.len()).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                PanaudError::FileNotFound {
+                    path: path.to_path_buf(),
+                    suggestion: "check that the file path is correct".into(),
                 }
-            })?;
+            } else {
+                PanaudError::IoError {
+                    message: e.to_string(),
+                    path: Some(path.to_path_buf()),
+                    suggestion: "check file permissions".into(),
+                }
+            }
+        })?;
 
         let format = AudioFormat::from_path(path).ok_or_else(|| PanaudError::UnknownFormat {
             path: path.to_path_buf(),
@@ -43,15 +41,14 @@ impl AudioInfo {
 
         let probed = crate::codec::probe::probe_file(path)?;
 
-        let track =
-            probed
-                .format
-                .default_track()
-                .ok_or_else(|| PanaudError::DecodeError {
-                    message: "no audio track found".into(),
-                    path: Some(path.to_path_buf()),
-                    suggestion: "the file does not contain an audio track".into(),
-                })?;
+        let track = probed
+            .format
+            .default_track()
+            .ok_or_else(|| PanaudError::DecodeError {
+                message: "no audio track found".into(),
+                path: Some(path.to_path_buf()),
+                suggestion: "the file does not contain an audio track".into(),
+            })?;
 
         let sample_rate = track.codec_params.sample_rate.unwrap_or(0);
         let channels = track
@@ -67,10 +64,7 @@ impl AudioInfo {
             0.0
         };
 
-        let codec = track
-            .codec_params
-            .codec
-            .to_string();
+        let codec = track.codec_params.codec.to_string();
 
         Ok(AudioInfo {
             path: path.display().to_string(),
@@ -143,7 +137,10 @@ fn format_duration(secs: f64) -> String {
     let frac = secs - total_secs as f64;
 
     if hours > 0 {
-        format!("{hours}:{minutes:02}:{seconds:02}.{:02}", (frac * 100.0) as u32)
+        format!(
+            "{hours}:{minutes:02}:{seconds:02}.{:02}",
+            (frac * 100.0) as u32
+        )
     } else {
         format!("{minutes}:{seconds:02}.{:02}", (frac * 100.0) as u32)
     }

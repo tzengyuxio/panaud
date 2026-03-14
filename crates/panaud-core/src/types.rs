@@ -144,13 +144,7 @@ impl AudioFormat {
 
     /// All known formats.
     pub fn all() -> &'static [AudioFormat] {
-        &[
-            Self::Wav,
-            Self::Flac,
-            Self::Mp3,
-            Self::Ogg,
-            Self::Aac,
-        ]
+        &[Self::Wav, Self::Flac, Self::Mp3, Self::Ogg, Self::Aac]
     }
 }
 

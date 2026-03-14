@@ -23,7 +23,11 @@ pub fn run(args: &VolumeArgs, format: OutputFormat, dry_run: bool, show_schema: 
         return 0;
     }
 
-    let ctx = match PipelineContext::from_io_args(&args.io, format, "panaud volume <input> -o <output> --gain <dB>") {
+    let ctx = match PipelineContext::from_io_args(
+        &args.io,
+        format,
+        "panaud volume <input> -o <output> --gain <dB>",
+    ) {
         Some(c) => c,
         None => return 5,
     };
@@ -44,7 +48,9 @@ pub fn run(args: &VolumeArgs, format: OutputFormat, dry_run: bool, show_schema: 
         (None, None) => {
             let err = PanaudError::InvalidArgument {
                 message: "must specify --gain or --factor".into(),
-                suggestion: "use --gain <dB> (e.g. --gain -3) or --factor <value> (e.g. --factor 0.5)".into(),
+                suggestion:
+                    "use --gain <dB> (e.g. --gain -3) or --factor <value> (e.g. --factor 0.5)"
+                        .into(),
             };
             return output::print_error(format, &err);
         }
@@ -56,7 +62,10 @@ pub fn run(args: &VolumeArgs, format: OutputFormat, dry_run: bool, show_schema: 
         let plan = pipeline.describe();
         output::print_output(
             format,
-            &format!("Would adjust volume {} → {}", ctx.input, ctx.output_path_str),
+            &format!(
+                "Would adjust volume {} → {}",
+                ctx.input, ctx.output_path_str
+            ),
             &plan,
         );
         return 0;

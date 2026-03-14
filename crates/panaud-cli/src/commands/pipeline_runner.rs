@@ -102,9 +102,7 @@ impl<'a> PipelineContext<'a> {
             return None;
         }
 
-        let output_size = std::fs::metadata(output_path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let output_size = std::fs::metadata(output_path).map(|m| m.len()).unwrap_or(0);
 
         Some(output_size)
     }
