@@ -13,6 +13,12 @@ readme = "../../README.md"
 name = "panaud"
 path = "src/main.rs"
 
+[features]
+default = ["flac-enc", "mp3-enc"]
+flac-enc = ["panaud-core/flac-enc"]
+mp3-enc = ["panaud-core/mp3-enc"]
+ogg-enc = ["panaud-core/ogg-enc"]
+
 [dependencies]
 pan-common = { workspace = true, features = ["clap"] }
 panaud-core = { workspace = true }

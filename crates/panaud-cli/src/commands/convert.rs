@@ -92,7 +92,7 @@ pub fn run(args: &ConvertArgs, format: OutputFormat, dry_run: bool, show_schema:
         return 0;
     }
 
-    let input = match &args.input {
+    let input = match &args.io.input {
         Some(i) => i,
         None => {
             let err = PanaudError::InvalidArgument {
@@ -103,8 +103,8 @@ pub fn run(args: &ConvertArgs, format: OutputFormat, dry_run: bool, show_schema:
         }
     };
 
-    let output_path_str = match args.output.as_ref().or(args.output_pos.as_ref()) {
-        Some(o) => o.clone(),
+    let output_path_str = match args.io.output_path() {
+        Some(o) => o.to_string(),
         None => {
             let err = PanaudError::InvalidArgument {
                 message: "missing required argument: output (-o)".into(),
@@ -136,7 +136,8 @@ pub fn run(args: &ConvertArgs, format: OutputFormat, dry_run: bool, show_schema:
             None => {
                 let err = PanaudError::UnsupportedFormat {
                     format: to.clone(),
-                    suggestion: "v0.1.0 only supports WAV output".into(),
+                    suggestion: "unsupported output format; use a format with encoding support"
+                        .into(),
                 };
                 return output::print_error(format, &err);
             }
@@ -157,13 +158,13 @@ pub fn run(args: &ConvertArgs, format: OutputFormat, dry_run: bool, show_schema:
     if !target_format.can_encode() {
         let err = PanaudError::UnsupportedFormat {
             format: target_format.to_string(),
-            suggestion: "v0.1.0 only supports WAV output; use .wav extension".into(),
+            suggestion: "use a supported output format extension (e.g. .wav, .flac, .mp3)".into(),
         };
         return output::print_error(format, &err);
     }
 
     // Check output exists
-    if output_path.exists() && !args.overwrite {
+    if output_path.exists() && !args.io.overwrite {
         if args.skip_existing {
             match format {
                 OutputFormat::Human => println!("Skipped: output already exists"),
