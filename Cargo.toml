@@ -15,6 +15,9 @@ readme = "README.md"
 # Audio processing
 symphonia = { version = "0.5", features = ["all"] }
 hound = "3.5"
+flacenc = "0.4"
+mp3lame-encoder = "0.2"
+vorbis_rs = "0.5"
 
 # CLI
 clap = { version = "4.5", features = ["derive"] }

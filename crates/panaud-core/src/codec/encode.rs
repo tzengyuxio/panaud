@@ -11,29 +11,18 @@ pub fn encode_wav(audio: &AudioData, path: &Path) -> Result<()> {
         sample_format: hound::SampleFormat::Float,
     };
 
-    let mut writer = hound::WavWriter::create(path, spec).map_err(|e| PanaudError::EncodeError {
-        message: e.to_string(),
-        path: Some(path.to_path_buf()),
-        suggestion: "check that the output directory exists and is writable".into(),
-    })?;
+    let mut writer = hound::WavWriter::create(path, spec)
+        .map_err(|e| PanaudError::encode(path, e.to_string(), "check that the output directory exists and is writable"))?;
 
     for &sample in &audio.samples {
         writer
             .write_sample(sample)
-            .map_err(|e| PanaudError::EncodeError {
-                message: e.to_string(),
-                path: Some(path.to_path_buf()),
-                suggestion: "error writing audio sample".into(),
-            })?;
+            .map_err(|e| PanaudError::encode(path, e.to_string(), "error writing audio sample"))?;
     }
 
     writer
         .finalize()
-        .map_err(|e| PanaudError::EncodeError {
-            message: e.to_string(),
-            path: Some(path.to_path_buf()),
-            suggestion: "error finalizing WAV file".into(),
-        })?;
+        .map_err(|e| PanaudError::encode(path, e.to_string(), "error finalizing WAV file"))?;
 
     Ok(())
 }

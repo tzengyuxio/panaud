@@ -29,6 +29,42 @@ impl AudioData {
         self.num_frames() as f64 / self.sample_rate as f64
     }
 
+    /// Convert f32 samples to i16 (for MP3 encoding etc.).
+    pub fn samples_as_i16(&self) -> Vec<i16> {
+        self.samples
+            .iter()
+            .map(|&s| {
+                let clamped = s.clamp(-1.0, 1.0);
+                (clamped * i16::MAX as f32) as i16
+            })
+            .collect()
+    }
+
+    /// Convert f32 samples to i32 (for FLAC encoding etc.).
+    pub fn samples_as_i32(&self, bits_per_sample: u32) -> Vec<i32> {
+        let scale = (1_i64 << (bits_per_sample - 1)) - 1;
+        self.samples
+            .iter()
+            .map(|&s| {
+                let clamped = s.clamp(-1.0, 1.0);
+                (clamped * scale as f32) as i32
+            })
+            .collect()
+    }
+
+    /// De-interleave samples into per-channel vectors.
+    pub fn deinterleave(&self) -> Vec<Vec<f32>> {
+        let ch = self.channels as usize;
+        let num_frames = self.num_frames() as usize;
+        let mut channels = vec![Vec::with_capacity(num_frames); ch];
+        for frame in 0..num_frames {
+            for (c, channel) in channels.iter_mut().enumerate() {
+                channel.push(self.samples[frame * ch + c]);
+            }
+        }
+        channels
+    }
+
     /// Extract a slice of frames [start_frame, end_frame).
     pub fn slice_frames(&self, start_frame: u64, end_frame: u64) -> AudioData {
         let ch = self.channels as u64;
@@ -76,9 +112,18 @@ impl AudioFormat {
             .and_then(Self::from_extension)
     }
 
-    /// Whether this format can be encoded in v0.1.0.
+    /// Whether this format can be encoded (depends on enabled features).
     pub fn can_encode(&self) -> bool {
-        matches!(self, Self::Wav)
+        match self {
+            Self::Wav => true,
+            #[cfg(feature = "flac-enc")]
+            Self::Flac => true,
+            #[cfg(feature = "mp3-enc")]
+            Self::Mp3 => true,
+            #[cfg(feature = "ogg-enc")]
+            Self::Ogg => true,
+            _ => false,
+        }
     }
 
     /// Whether this format can be decoded.
@@ -162,7 +207,38 @@ mod tests {
     #[test]
     fn audio_format_can_encode() {
         assert!(AudioFormat::Wav.can_encode());
-        assert!(!AudioFormat::Mp3.can_encode());
-        assert!(!AudioFormat::Flac.can_encode());
+        #[cfg(feature = "flac-enc")]
+        assert!(AudioFormat::Flac.can_encode());
+        #[cfg(feature = "mp3-enc")]
+        assert!(AudioFormat::Mp3.can_encode());
+        #[cfg(feature = "ogg-enc")]
+        assert!(AudioFormat::Ogg.can_encode());
+        assert!(!AudioFormat::Aac.can_encode());
+    }
+
+    #[test]
+    fn samples_as_i16_conversion() {
+        let data = AudioData {
+            samples: vec![0.0, 1.0, -1.0, 0.5],
+            sample_rate: 44100,
+            channels: 1,
+        };
+        let i16s = data.samples_as_i16();
+        assert_eq!(i16s[0], 0);
+        assert_eq!(i16s[1], i16::MAX);
+        assert_eq!(i16s[2], -i16::MAX);
+    }
+
+    #[test]
+    fn samples_as_i32_conversion() {
+        let data = AudioData {
+            samples: vec![0.0, 1.0, -1.0],
+            sample_rate: 44100,
+            channels: 1,
+        };
+        let i32s = data.samples_as_i32(16);
+        assert_eq!(i32s[0], 0);
+        assert_eq!(i32s[1], 32767);
+        assert_eq!(i32s[2], -32767);
     }
 }

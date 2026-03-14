@@ -41,6 +41,39 @@ pub enum Commands {
 
     /// Trim audio to a time range
     Trim(TrimArgs),
+
+    /// Adjust audio volume
+    Volume(VolumeArgs),
+
+    /// Peak-normalize audio
+    Normalize(NormalizeArgs),
+}
+
+/// Common I/O arguments shared by processing commands.
+#[derive(clap::Args)]
+pub struct IoArgs {
+    /// Input audio file
+    pub input: Option<String>,
+
+    /// Output file path (positional)
+    pub output_pos: Option<String>,
+
+    /// Output file path
+    #[arg(short, long)]
+    pub output: Option<String>,
+
+    /// Overwrite output if it exists
+    #[arg(long)]
+    pub overwrite: bool,
+}
+
+impl IoArgs {
+    /// Resolve the effective output path from positional or -o flag.
+    pub fn output_path(&self) -> Option<&str> {
+        self.output
+            .as_deref()
+            .or(self.output_pos.as_deref())
+    }
 }
 
 #[derive(clap::Args)]
@@ -55,23 +88,12 @@ pub struct InfoArgs {
 
 #[derive(clap::Args)]
 pub struct ConvertArgs {
-    /// Input audio file
-    pub input: Option<String>,
-
-    /// Output file path (positional)
-    pub output_pos: Option<String>,
-
-    /// Output file path
-    #[arg(short, long)]
-    pub output: Option<String>,
+    #[command(flatten)]
+    pub io: IoArgs,
 
     /// Target format (inferred from output extension if not set)
     #[arg(long)]
     pub to: Option<String>,
-
-    /// Overwrite output if it exists
-    #[arg(long)]
-    pub overwrite: bool,
 
     /// Skip if output already exists
     #[arg(long)]
@@ -80,15 +102,8 @@ pub struct ConvertArgs {
 
 #[derive(clap::Args)]
 pub struct TrimArgs {
-    /// Input audio file
-    pub input: Option<String>,
-
-    /// Output file path (positional)
-    pub output_pos: Option<String>,
-
-    /// Output file path
-    #[arg(short, long)]
-    pub output: Option<String>,
+    #[command(flatten)]
+    pub io: IoArgs,
 
     /// Start time (e.g. '1:30', '90s', '1.5m', '44100S')
     #[arg(short, long)]
@@ -97,8 +112,28 @@ pub struct TrimArgs {
     /// End time (defaults to end of file)
     #[arg(short, long)]
     pub end: Option<String>,
+}
 
-    /// Overwrite output if it exists
+#[derive(clap::Args)]
+pub struct VolumeArgs {
+    #[command(flatten)]
+    pub io: IoArgs,
+
+    /// Gain in dB (e.g. -3 for quieter, +6 for louder)
     #[arg(long)]
-    pub overwrite: bool,
+    pub gain: Option<f32>,
+
+    /// Linear volume factor (e.g. 0.5 for half, 2.0 for double)
+    #[arg(long)]
+    pub factor: Option<f32>,
+}
+
+#[derive(clap::Args)]
+pub struct NormalizeArgs {
+    #[command(flatten)]
+    pub io: IoArgs,
+
+    /// Target peak level in dBFS (default: -1.0)
+    #[arg(long)]
+    pub target: Option<f32>,
 }

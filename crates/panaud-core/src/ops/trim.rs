@@ -13,7 +13,7 @@ pub struct TrimOp {
 impl TrimOp {
     pub fn new(start_str: &str, end_str: Option<&str>) -> Result<Self> {
         let start = parse_time(start_str)?;
-        let end = end_str.map(|s| parse_time(s)).transpose()?;
+        let end = end_str.map(parse_time).transpose()?;
         Ok(Self { start, end })
     }
 

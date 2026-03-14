@@ -45,6 +45,14 @@ fn capabilities() -> Capabilities {
                 name: "trim".into(),
                 description: "Trim audio to a time range".into(),
             },
+            CommandCap {
+                name: "volume".into(),
+                description: "Adjust audio volume".into(),
+            },
+            CommandCap {
+                name: "normalize".into(),
+                description: "Peak-normalize audio".into(),
+            },
         ],
         formats: AudioFormat::all()
             .iter()
@@ -111,6 +119,12 @@ fn main() {
         }
         Some(Commands::Trim(args)) => {
             commands::trim::run(args, cli.format, cli.dry_run, cli.schema)
+        }
+        Some(Commands::Volume(args)) => {
+            commands::volume::run(args, cli.format, cli.dry_run, cli.schema)
+        }
+        Some(Commands::Normalize(args)) => {
+            commands::normalize::run(args, cli.format, cli.dry_run, cli.schema)
         }
         None => {
             use clap::CommandFactory;

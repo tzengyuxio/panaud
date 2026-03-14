@@ -59,8 +59,7 @@ pub fn parse_time(input: &str) -> Result<TimeSpec> {
     }
 
     // Samples: "44100S"
-    if input.ends_with('S') {
-        let num = &input[..input.len() - 1];
+    if let Some(num) = input.strip_suffix('S') {
         return num.parse::<u64>().map(TimeSpec::Samples).map_err(|_| {
             PanaudError::InvalidTimeFormat {
                 input: input.to_string(),
@@ -70,8 +69,7 @@ pub fn parse_time(input: &str) -> Result<TimeSpec> {
     }
 
     // Minutes: "1.5m"
-    if input.ends_with('m') {
-        let num = &input[..input.len() - 1];
+    if let Some(num) = input.strip_suffix('m') {
         return num
             .parse::<f64>()
             .map(|m| TimeSpec::Seconds(m * 60.0))
@@ -82,8 +80,7 @@ pub fn parse_time(input: &str) -> Result<TimeSpec> {
     }
 
     // Seconds with suffix: "90s"
-    if input.ends_with('s') {
-        let num = &input[..input.len() - 1];
+    if let Some(num) = input.strip_suffix('s') {
         return num
             .parse::<f64>()
             .map(TimeSpec::Seconds)
