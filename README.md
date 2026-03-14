@@ -57,6 +57,21 @@ panaud volume song.wav -o louder.wav --gain 3
 
 # Peak-normalize audio
 panaud normalize song.wav -o normalized.wav
+
+# Fade in/out
+panaud fade song.wav -o faded.wav --in 2s --out 3s
+
+# Convert to mono
+panaud channels song.wav -o mono.wav --mono
+
+# Resample to 48 kHz
+panaud resample song.wav -o resampled.wav --rate 48000
+
+# Concatenate files
+panaud concat intro.wav song.wav outro.wav -o full.wav
+
+# Split into 4 equal parts
+panaud split song.wav -o chunks/ --count 4
 ```
 
 ## Commands
@@ -68,6 +83,11 @@ panaud normalize song.wav -o normalized.wav
 | `trim` | Trim audio to a time range |
 | `volume` | Adjust audio volume |
 | `normalize` | Peak-normalize audio |
+| `fade` | Apply fade-in/fade-out to audio |
+| `channels` | Change audio channel layout (mono, stereo, extract) |
+| `resample` | Resample audio to a different sample rate |
+| `concat` | Concatenate multiple audio files into one |
+| `split` | Split audio into multiple files |
 
 ## Supported Formats
 

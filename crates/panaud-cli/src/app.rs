@@ -47,6 +47,21 @@ pub enum Commands {
 
     /// Peak-normalize audio
     Normalize(NormalizeArgs),
+
+    /// Apply fade-in/fade-out to audio
+    Fade(FadeArgs),
+
+    /// Change audio channel layout
+    Channels(ChannelsArgs),
+
+    /// Resample audio to a different sample rate
+    Resample(ResampleArgs),
+
+    /// Concatenate multiple audio files
+    Concat(ConcatArgs),
+
+    /// Split audio into multiple files
+    Split(SplitArgs),
 }
 
 /// Common I/O arguments shared by processing commands.
@@ -134,4 +149,90 @@ pub struct NormalizeArgs {
     /// Target peak level in dBFS (default: -1.0)
     #[arg(long)]
     pub target: Option<f32>,
+}
+
+#[derive(clap::Args)]
+pub struct FadeArgs {
+    #[command(flatten)]
+    pub io: IoArgs,
+
+    /// Fade-in duration (e.g. '2s', '0:02')
+    #[arg(long = "in")]
+    pub fade_in: Option<String>,
+
+    /// Fade-out duration (e.g. '3s', '0:03')
+    #[arg(long = "out")]
+    pub fade_out: Option<String>,
+}
+
+#[derive(clap::Args)]
+pub struct ChannelsArgs {
+    #[command(flatten)]
+    pub io: IoArgs,
+
+    /// Mix down to mono
+    #[arg(long, conflicts_with_all = ["stereo", "count", "extract"])]
+    pub mono: bool,
+
+    /// Convert to stereo
+    #[arg(long, conflicts_with_all = ["mono", "count", "extract"])]
+    pub stereo: bool,
+
+    /// Target channel count
+    #[arg(long, conflicts_with_all = ["mono", "stereo", "extract"])]
+    pub count: Option<u16>,
+
+    /// Extract a channel (left, right, or numeric index)
+    #[arg(long, conflicts_with_all = ["mono", "stereo", "count"])]
+    pub extract: Option<String>,
+}
+
+#[derive(clap::Args)]
+pub struct ResampleArgs {
+    #[command(flatten)]
+    pub io: IoArgs,
+
+    /// Target sample rate in Hz
+    #[arg(long)]
+    pub rate: u32,
+}
+
+#[derive(clap::Args)]
+pub struct ConcatArgs {
+    /// Input audio files (two or more)
+    pub inputs: Vec<String>,
+
+    /// Output file path
+    #[arg(short, long)]
+    pub output: Option<String>,
+
+    /// Overwrite output if it exists
+    #[arg(long)]
+    pub overwrite: bool,
+}
+
+#[derive(clap::Args)]
+pub struct SplitArgs {
+    /// Input audio file
+    pub input: Option<String>,
+
+    /// Output directory or file prefix
+    #[arg(short, long)]
+    pub output: Option<String>,
+
+    /// Split at specific time points (comma-separated)
+    #[arg(long, conflicts_with_all = ["count", "duration"])]
+    pub at: Option<String>,
+
+    /// Split into N equal parts
+    #[arg(long, conflicts_with_all = ["at", "duration"])]
+    pub count: Option<u32>,
+
+    /// Split into chunks of a given duration
+    #[arg(long, conflicts_with_all = ["at", "count"])]
+    pub duration: Option<String>,
+
+    /// Overwrite output if it exists
+    #[arg(long)]
+    pub overwrite: bool,
 }

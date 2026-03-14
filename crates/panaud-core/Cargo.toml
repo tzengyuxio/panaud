@@ -10,10 +10,11 @@ categories.workspace = true
 readme = "../../README.md"
 
 [features]
-default = ["flac-enc", "mp3-enc"]
+default = ["flac-enc", "mp3-enc", "resample"]
 flac-enc = ["dep:flacenc"]
 mp3-enc = ["dep:mp3lame-encoder"]
 ogg-enc = ["dep:vorbis_rs"]
+resample = ["dep:rubato"]
 
 [dependencies]
 pan-common = { workspace = true }
@@ -22,6 +23,7 @@ hound = { workspace = true }
 flacenc = { workspace = true, optional = true }
 mp3lame-encoder = { workspace = true, optional = true }
 vorbis_rs = { workspace = true, optional = true }
+rubato = { workspace = true, optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

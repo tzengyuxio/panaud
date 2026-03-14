@@ -14,10 +14,11 @@ name = "panaud"
 path = "src/main.rs"
 
 [features]
-default = ["flac-enc", "mp3-enc"]
+default = ["flac-enc", "mp3-enc", "resample"]
 flac-enc = ["panaud-core/flac-enc"]
 mp3-enc = ["panaud-core/mp3-enc"]
 ogg-enc = ["panaud-core/ogg-enc"]
+resample = ["panaud-core/resample"]
 
 [dependencies]
 pan-common = { workspace = true, features = ["clap"] }

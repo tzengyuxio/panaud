@@ -46,6 +46,15 @@ pub enum PanaudError {
     #[error("trim range out of bounds: {message}")]
     TrimOutOfRange { message: String, suggestion: String },
 
+    #[error("format mismatch: {message}")]
+    FormatMismatch { message: String, suggestion: String },
+
+    #[error("split error: {message}")]
+    SplitError { message: String, suggestion: String },
+
+    #[error("resample error: {message}")]
+    ResampleError { message: String, suggestion: String },
+
     #[error("io error: {message}")]
     IoError {
         message: String,
@@ -63,7 +72,10 @@ impl StructuredError for PanaudError {
             Self::UnsupportedFormat { .. } | Self::UnknownFormat { .. } => ExitCode::Unsupported,
             Self::InvalidArgument { .. }
             | Self::InvalidTimeFormat { .. }
-            | Self::TrimOutOfRange { .. } => ExitCode::BadArgs,
+            | Self::TrimOutOfRange { .. }
+            | Self::SplitError { .. } => ExitCode::BadArgs,
+            Self::FormatMismatch { .. } => ExitCode::BadArgs,
+            Self::ResampleError { .. } => ExitCode::OutputIssue,
             Self::DecodeError { .. } => ExitCode::InputFile,
             Self::EncodeError { .. } | Self::IoError { .. } => ExitCode::OutputIssue,
         }
@@ -81,6 +93,9 @@ impl StructuredError for PanaudError {
             | Self::InvalidArgument { suggestion, .. }
             | Self::InvalidTimeFormat { suggestion, .. }
             | Self::TrimOutOfRange { suggestion, .. }
+            | Self::FormatMismatch { suggestion, .. }
+            | Self::SplitError { suggestion, .. }
+            | Self::ResampleError { suggestion, .. }
             | Self::IoError { suggestion, .. } => suggestion,
         }
     }
