@@ -108,7 +108,14 @@ jobs:
         run: sleep 30
 
       - name: Publish panaud-cli
-        run: cargo publish -p panaud-cli
+        run: |
+          cargo publish -p panaud-cli 2>&1 | tee /tmp/publish-cli.log || {
+            if grep -q "already uploaded" /tmp/publish-cli.log; then
+              echo "panaud-cli already published, skipping"
+            else
+              exit 1
+            fi
+          }
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
