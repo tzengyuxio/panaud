@@ -13,6 +13,74 @@ jobs:
     name: CI
     uses: ./.github/workflows/ci.yml
 
+  build:
+    name: Build ${{ matrix.target }}
+    needs: ci
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive: tar.gz
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-13
+            archive: tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            archive: tar.gz
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            archive: zip
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Install cross (Linux aarch64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Build
+        run: |
+          if [ "${{ matrix.target }}" = "aarch64-unknown-linux-gnu" ]; then
+            cross build --release --target ${{ matrix.target }} -p panaud-cli
+          else
+            cargo build --release --target ${{ matrix.target }} -p panaud-cli
+          fi
+        shell: bash
+
+      - name: Package (unix)
+        if: matrix.archive == 'tar.gz'
+        run: |
+          ARCHIVE_NAME="panaud-${GITHUB_REF_NAME}-${{ matrix.target }}.tar.gz"
+          tar czf "$ARCHIVE_NAME" -C target/${{ matrix.target }}/release panaud
+          echo "ASSET=$ARCHIVE_NAME" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Package (windows)
+        if: matrix.archive == 'zip'
+        run: |
+          $ARCHIVE_NAME = "panaud-${env:GITHUB_REF_NAME}-${{ matrix.target }}.zip"
+          Compress-Archive -Path "target/${{ matrix.target }}/release/panaud.exe" -DestinationPath $ARCHIVE_NAME
+          echo "ASSET=$ARCHIVE_NAME" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: panaud-${{ matrix.target }}
+          path: ${{ env.ASSET }}
+
   publish:
     name: Publish to crates.io
     needs: ci
@@ -46,17 +114,24 @@ jobs:
 
   release:
     name: GitHub Release
-    needs: ci
+    needs: [ci, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          files: artifacts/*
 
   update-homebrew:
     name: Update Homebrew Formula
