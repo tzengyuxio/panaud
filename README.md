@@ -1,66 +1,100 @@
 # panaud
 
-> The Swiss Army knife of audio processing — built for humans and AI agents alike.
+[![crates.io](https://img.shields.io/crates/v/panaud-cli.svg)](https://crates.io/crates/panaud-cli)
+[![downloads](https://img.shields.io/crates/d/panaud-cli.svg)](https://crates.io/crates/panaud-cli)
+[![docs.rs](https://docs.rs/panaud-core/badge.svg)](https://docs.rs/panaud-core)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
+[![Rust](https://img.shields.io/badge/rust-2021_edition-orange.svg)](https://www.rust-lang.org/)
 
-panaud is a modern replacement for [SoX](http://sox.sourceforge.net/) — built with Rust, designed with explicit CLI syntax and structured output for both human users and AI agents.
+The Swiss Army knife of audio processing — built for humans and AI agents alike.
 
-## Status
+## Features
 
-**v0.1.0** — MVP with `info`, `convert`, and `trim` commands.
-
-| Feature | Decode | Encode |
-|---------|--------|--------|
-| WAV     | ✅     | ✅     |
-| MP3     | ✅     | ❌     |
-| FLAC    | ✅     | ❌     |
-| OGG     | ✅     | ❌     |
-| AAC     | ✅     | ❌     |
+- **Multi-format decoding** — WAV, MP3, FLAC, OGG, AAC via symphonia
+- **Flexible time parsing** — `1:30`, `90s`, `1.5m`, `44100S` (samples)
+- **AI-agent friendly** — structured JSON output, `--dry-run`, `--schema`, and `--capabilities` for programmatic use
+- **Fast & safe** — built in Rust with structured error handling and exit codes
 
 ## Installation
 
+### Homebrew (macOS / Linux)
+
 ```bash
-cargo install --path crates/panaud-cli
+brew install tzengyuxio/tap/panaud
 ```
 
-## Usage
+### Cargo
 
 ```bash
-# Show audio file metadata
-panaud info song.mp3
+cargo install panaud-cli
+```
+
+### Build from source
+
+```bash
+git clone https://github.com/tzengyuxio/panaud.git
+cd panaud
+cargo build --release
+```
+
+## Quick Start
+
+```bash
+# Get audio info
 panaud info song.mp3 --format json
 
-# Convert audio to WAV
+# Convert MP3 to WAV
 panaud convert song.mp3 -o song.wav
-panaud convert song.flac -o output.wav --overwrite
 
 # Trim audio to a time range
 panaud trim song.wav -o clip.wav --start 1:30 --end 2:00
-panaud trim song.wav -o intro.wav --start 0 --end 30s
 
 # Preview without executing
 panaud trim song.wav -o clip.wav --start 1:30 --dry-run
-
-# Show command schema (for AI agents)
-panaud info --schema
-panaud convert --schema
-
-# List all capabilities
-panaud --capabilities
-panaud --capabilities --format json
 ```
 
-### Time formats
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `info` | Show audio file metadata (format, codec, sample rate, channels, duration) |
+| `convert` | Convert audio between formats |
+| `trim` | Trim audio to a time range |
+
+## Supported Formats
+
+| Format | Decode | Encode |
+|--------|--------|--------|
+| WAV | ✅ symphonia | ✅ hound |
+| MP3 | ✅ symphonia | — |
+| FLAC | ✅ symphonia | — |
+| OGG | ✅ symphonia | — |
+| AAC | ✅ symphonia | — |
+
+> v0.1.0 can decode all formats above but only encode to WAV. More output formats coming in future releases.
+
+## Time Formats
 
 The `--start` and `--end` flags accept flexible time formats:
 
-| Format    | Example   | Meaning          |
-|-----------|-----------|------------------|
-| `mm:ss`   | `1:30`    | 1 minute 30 seconds |
-| `hh:mm:ss`| `1:02:30` | 1 hour 2 min 30 sec |
-| seconds   | `90`      | 90 seconds       |
-| `Ns`      | `90s`     | 90 seconds       |
-| `Nm`      | `1.5m`    | 1.5 minutes      |
-| `NS`      | `44100S`  | 44100 samples    |
+| Format | Example | Meaning |
+|--------|---------|---------|
+| `mm:ss` | `1:30` | 1 minute 30 seconds |
+| `hh:mm:ss` | `1:02:30` | 1 hour 2 min 30 sec |
+| seconds | `90` | 90 seconds |
+| `Ns` | `90s` | 90 seconds |
+| `Nm` | `1.5m` | 1.5 minutes |
+| `NS` | `44100S` | 44100 samples (capital S) |
+
+## AI Agent Integration
+
+panaud supports programmatic discovery and structured output for AI agents and automation:
+
+```bash
+panaud --capabilities --format json   # Discover all commands and formats
+panaud info --schema                  # Get parameter definitions as JSON
+panaud trim song.wav -o clip.wav --start 1:30 --dry-run --format json  # Preview without side effects
+```
 
 ## Why panaud?
 
@@ -86,23 +120,9 @@ panaud convert input.wav output.flac \
     --sample-rate 48000
 ```
 
-## Architecture
-
-```
-panaud/
-├── crates/
-│   ├── panaud-core/     ← library: codec, ops, types, info
-│   └── panaud-cli/      ← binary: CLI interface (clap)
-└── Cargo.toml           ← workspace root
-```
-
-- **pan-common** — shared infrastructure (Pipeline, Operation trait, structured errors, output formatting)
-- **panaud-core** — audio-specific logic: symphonia decoding, hound WAV encoding, TrimOp
-- **panaud-cli** — command dispatch, argument parsing, human/JSON output
-
 ## Part of the pan- family
 
-panaud is the second member of the pan- tool family, sharing core infrastructure (CLI framework, structured output, batch processing) via `pan-common`.
+panaud is the second member of the pan- tool family, sharing core infrastructure (CLI framework, structured output, pipeline engine) via [`pan-common`](https://crates.io/crates/pan-common).
 
 | Tool | Domain |
 |------|--------|
@@ -111,4 +131,9 @@ panaud is the second member of the pan- tool family, sharing core infrastructure
 
 ## License
 
-MIT
+Licensed under either of
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
+- MIT License ([LICENSE-MIT](LICENSE-MIT))
+
+at your option.
