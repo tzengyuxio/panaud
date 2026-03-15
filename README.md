@@ -37,6 +37,12 @@ cd panaud
 cargo build --release
 ```
 
+### Benchmarks
+
+```bash
+cargo bench -p panaud-core
+```
+
 ## Quick Start
 
 ```bash
