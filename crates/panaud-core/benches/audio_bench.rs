@@ -1,6 +1,4 @@
-use criterion::{
-    criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{criterion_group, criterion_main, BatchSize, BenchmarkId, Criterion, Throughput};
 use panaud_core::ops::channels::{ChannelMode, ChannelSelector, ChannelsOp};
 use panaud_core::ops::concat::concat_audio;
 use panaud_core::ops::fade::FadeOp;
@@ -75,9 +73,8 @@ fn ops_by_duration(c: &mut Criterion) {
 
         // Fade
         group.bench_with_input(BenchmarkId::new("fade", label), &audio, |b, audio| {
-            let op =
-                FadeOp::from_specs(Some(TimeSpec::Seconds(0.5)), Some(TimeSpec::Seconds(0.5)))
-                    .unwrap();
+            let op = FadeOp::from_specs(Some(TimeSpec::Seconds(0.5)), Some(TimeSpec::Seconds(0.5)))
+                .unwrap();
             b.iter_batched(
                 || audio.clone(),
                 |input| op.apply(input).unwrap(),
