@@ -4,3 +4,5 @@ PLANS/
 *.swp
 *.swo
 *~
+auditory-tests/results/
+auditory-tests/tmp/
